@@ -4,7 +4,7 @@ import {spawn_zombies,zombie} from "./assets/zombie/spawner.js";
 
 // Load player Image
 const playerImg = new Image();
-playerImg.src = "./assets/player.png";
+playerImg.src = "/assets/player.png";
 playerImg.onerror = ()=>{
     playerImg.src = "/assets/player.png";
 }
