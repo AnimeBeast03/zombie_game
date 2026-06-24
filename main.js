@@ -1,73 +1,84 @@
 // import some stuff
 import {canvas,ctx,debuger} from "./assets/files/do_page_settup.js";
 import {spawn_zombies,zombie} from "./assets/files/zombie_spawner.js";
+import {draw_player,player} from "./assets/files/player.js";
 
 
 
-let player = {
-    // player settings (can be changed)
-    y: 750,
-    image_src: "./assets/images/player_spritesheet.png",
-    // player variables (can not change)
-    x: canvas.width/2,
-    image: new Image()
+
+let bullet = {
+    img: new Image(),
+    img_src: "./assets/images/bullet.png",
+    active : [],
+    speed : 5,
 }
+let timeGap = 5;
 
 
+bullet.img.src = bullet.img_src;
+bullet.img.onerror = ()=>{
+    bullet.img.src = bullet.img_src;
+};
 
-// this will load the graphics (image) for the player
-player.image.src = player.image_src;
-player.image.onerror = ()=>{
-    player.image.src = zombie.image_src;
-}
+
+canvas.addEventListener("pointerdown", (e)=>{
+    bullet.active.push({
+        x: player.x,
+        y: player.y,
+        a: player.a - 1.5708,
+        FT1 : 0,        // frame 1 timer
+        FT2 : 0         // frame 2 timer
+    });
+});
+
 
 
 
 // start game loop
 game_loop();
 
+
+
 function game_loop() {
 ctx.clearRect(0,0,canvas.width,canvas.height);
-spawn_zombies();
-
-    // draw_player
+    spawn_zombies();
     draw_player();
+    
+    draw_bullets();
     
 requestAnimationFrame(game_loop);
 };
 
 
 
-function draw_player() {
-    let md = Infinity;
-    player.a = 0;
-    for (let i = zombie.active.length - 1; i >= 0; i--) {  
-        let z = zombie.active[i];
-        z.dx = player.x - z.x;          // later based on Gate position
-        z.dy = player.y - z.y;          // later based on Gate position
-        z.a = Math.atan2(z.dy,z.dx) - 1.6;
-        if (z.dy > 0 && z.dy < md) {
-            player.a = z.a;
-            md = z.dy;
-            if (debuger == true) {
-                ctx.beginPath();
-                ctx.lineWidth = 5;
-                ctx.strokeStyle = "blue";
-                ctx.moveTo(player.x, player.y); 
-                ctx.lineTo(z.x,z.y); 
-                ctx.stroke(); 
+function draw_bullets() {
+    for (let i = 0; i < bullet.active.length; i++) {
+        let b = bullet.active[i];
+        ctx.save();
+        ctx.translate(b.x,b.y);
+        ctx.rotate(b.a);
+        if (b.FT1 > timeGap) {
+            ctx.drawImage(
+                bullet.img,
+                16,0,16,16,
+                10,-7,32,32
+            );
+            if (b.FT2 > timeGap) {
+                b.FT1 = 0;
+                b.FT2 = 0;
+            } else {
+                b.FT2++;
             }
+        } else {
+            ctx.drawImage(
+                bullet.img,
+                0,0,16,16,
+                10,-7,32,32
+            );
+            b.FT1++;
         }
-    }
-    ctx.save();
-    ctx.translate(player.x,player.y);
-    ctx.rotate(player.a);
-    ctx.drawImage(player.image,128,0,64,64,-32,-32,64,64);
-    ctx.restore();
-    if (debuger == true) {
-        ctx.font = "15px Arial";
-        ctx.fillStyle = "white";
-        ctx.fillText("zd: " + Math.floor(md),player.x + 30,player.y);
-        ctx.fillText("pa: " + Math.floor(player.a * (180/Math.PI)) + "°",player.x + 30,player.y + 20);
+        ctx.restore();
+        b.x += Math.cos(b.a) * bullet.speed;
+        b.y += Math.sin(b.a) * bullet.speed;
     }
 }
