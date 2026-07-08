@@ -38,7 +38,7 @@ canvas.addEventListener("pointerdown", ()=>{
 
 // bullet spawner functuon
 function draw_bullets() {
-    for (let i = 0; i < bullet.active.length; i++) {
+    for (let i = bullet.active.length - 1; i >= 0; i--) {
         let current_bullet = bullet.active[i];
         let x = current_bullet.x;
         let y = current_bullet.y;

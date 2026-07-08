@@ -4,7 +4,6 @@ import {spawn_zombies,zombie} from "./zombie_spawner.js";
 import {bullet} from "./bullet_spawner.js";
 
 
-
 let player = {
     // player image
     image: new Image(),
