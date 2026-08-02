@@ -1,0 +1,47 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+
+
+/* Canvas */
+#canvas_container {
+    background-color: blue;
+    display: none;
+}
+#game_canvas {
+    background-color: grey;
+}
+
+
+
+
+/* Buttons */
+#start_btn {
+    /* Size */
+    height: 50px;
+    width: 100px;
+    /* Position */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50px,-25px);
+    /* Font Size */
+    font-size: 200%;
+}
+#stop_btn {
+    /* Size */
+    height: 40px;
+    width: 40px;
+    /* Position */
+    position: absolute;
+    right: 0px;
+    /* Style */
+    background-color: red;
+    color: white;
+}
+
+
+
