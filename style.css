@@ -13,6 +13,7 @@ body {
 }
 #game_canvas {
     background-color: grey;
+    image-rendering: pixelated;
 }
 
 

@@ -1,8 +1,11 @@
 // Get Canvas Container
-const canvas_container = document.getElementById("canvas_container");
-// Get Game Canvas
-const game_canvas = document.getElementById("game_canvas");
-const ctx = game_canvas.getContext("2d");
+const container = document.getElementById("canvas_container");
+// Setup Game Canvas
+const canvas = document.getElementById("game_canvas");
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+// Create Global Variables
+let isStarted = false;
 
 
 
@@ -10,18 +13,18 @@ const ctx = game_canvas.getContext("2d");
 function init_canvas(string) {
     if (string === "start") {
         // Enable Canvas Visibility
-        canvas_container.style.display = "block";
+        container.style.display = "block";
         // Enable Fullscreen Orientation
-        canvas_container.requestFullscreen();
+        container.requestFullscreen();
         screen.orientation.lock("landscape");
         // Resize Canvas
-        game_canvas.height = window.outerWidth;
-        game_canvas.width = window.outerHeight;
+        canvas.height = window.outerWidth;
+        canvas.width = window.outerHeight;
     } else if (string === "stop") {
         // Disable Fullscreen Orientation
         document.exitFullscreen();
         // Disable Canvas Visibility
-        canvas_container.style.display = "none";
+        container.style.display = "none";
     }
 }
 
@@ -30,6 +33,8 @@ function init_canvas(string) {
 // Game Start function
 function start() {
     init_canvas("start");
+    isStarted = true;
+    game_loop();
 }
 
 
@@ -37,4 +42,25 @@ function start() {
 // Game Stop function
 function stop() {
     init_canvas("stop");
+    isStarted = false;
+}
+
+
+
+// Game Loop function
+function game_loop() {
+    if (isStarted) {
+        // Clear Canvas
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        // Draw Text
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "blue";
+        ctx.fillText("Game Started",410,250);
+        // Draw Rectangle
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 5;
+        ctx.strokeRect(400,210,200,60);
+        // Repeat Everything
+        requestAnimationFrame(game_loop);
+    }
 }
