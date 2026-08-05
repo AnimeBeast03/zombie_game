@@ -6,6 +6,7 @@ const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 // Create Global Variables
 let isStarted = false;
+let touches = [];
 
 
 
@@ -60,7 +61,45 @@ function game_loop() {
         ctx.strokeStyle = "red";
         ctx.lineWidth = 5;
         ctx.strokeRect(400,210,200,60);
+        // Draw Touch Inputs
+        for (let touch of touches) {
+            // Skip If Touch Undefined
+            if (!touch) continue;
+            // Draw Circle
+            ctx.beginPath();
+            ctx.arc(touch.x,touch.y,20,0,2* Math.PI);
+            ctx.fillStyle = "rgba(255,255,255,0.492)";
+            ctx.fill();
+        }
         // Repeat Everything
         requestAnimationFrame(game_loop);
     }
 }
+
+
+
+// Touch Input Detection
+canvas.addEventListener("touchstart",(e)=>{
+    e.preventDefault();
+    for (let touch of e.touches) {
+        touches[touch.identifier] = {
+            x: touch.clientX,
+            y: touch.clientY,
+        }
+    }
+});
+canvas.addEventListener("touchmove",(e)=>{
+    e.preventDefault();
+    for (let touch of e.touches) {
+        touches[touch.identifier] = {
+            x: touch.clientX,
+            y: touch.clientY,
+        }
+    }
+});
+canvas.addEventListener("touchend",(e)=>{
+    e.preventDefault();
+    for (let touch of e.changedTouches) {
+        delete touches[touch.identifier];
+    }
+});
