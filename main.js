@@ -4,9 +4,16 @@ const container = document.getElementById("canvas_container");
 const canvas = document.getElementById("game_canvas");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
+
+
+
 // Create Global Variables
 let isStarted = false;
 let touches = [];
+let camera = {
+    x: 0,
+    y: 0,
+}
 
 
 
@@ -33,6 +40,7 @@ function init_canvas(string) {
 
 // Game Start function
 function start() {
+    if (isStarted) return;
     init_canvas("start");
     isStarted = true;
     game_loop();
@@ -61,6 +69,12 @@ function game_loop() {
         ctx.strokeStyle = "red";
         ctx.lineWidth = 5;
         ctx.strokeRect(400,210,200,60);
+        // Draw Game World
+        drawTrees(300,250,20,100,50);
+        drawTrees(750,100,5,50,20);
+        drawTrees(50,150,5,50,20);
+        drawTrees(900,200,15,90,40);
+        drawTrees(600,300,20,100,50);
         // Draw Touch Inputs
         for (let touch of touches) {
             // Skip If Touch Undefined
@@ -78,7 +92,7 @@ function game_loop() {
 
 
 
-// Touch Input Detection
+// Touch Input Detection System
 canvas.addEventListener("touchstart",(e)=>{
     e.preventDefault();
     for (let touch of e.touches) {
@@ -103,3 +117,31 @@ canvas.addEventListener("touchend",(e)=>{
         delete touches[touch.identifier];
     }
 });
+canvas.addEventListener("touchcancel",(e)=>{
+    e.preventDefault();
+    for (let touch of e.changedTouches) {
+        delete touches[touch.identifier];
+    }
+});
+
+
+
+// Draw Trees
+function drawTrees(x,y,w,h,r) {
+    // Draw Branch
+    ctx.fillStyle = "brown";
+    ctx.fillRect(
+        (x - camera.x)-(w/2),
+        y - camera.y,
+        w,h
+    );
+     // Draw A Tree
+    ctx.beginPath();
+    ctx.arc(
+        x - camera.x,
+        y - camera.y,
+        r,0,2* Math.PI
+    );
+    ctx.fillStyle = "green";
+    ctx.fill();
+}

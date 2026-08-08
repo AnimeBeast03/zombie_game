@@ -1,0 +1,1 @@
+1. Horizontal simultaneous multitouch triggers touchcancel
