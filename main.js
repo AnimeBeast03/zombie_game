@@ -14,6 +14,10 @@ let camera = {
     x: 0,
     y: 0,
 }
+let player = {
+    x: 500,
+    y: 250,
+}
 
 
 
@@ -70,11 +74,13 @@ function game_loop() {
         ctx.lineWidth = 5;
         ctx.strokeRect(400,210,200,60);
         // Draw Game World
-        drawTrees(300,250,20,100,50);
-        drawTrees(750,100,5,50,20);
-        drawTrees(50,150,5,50,20);
-        drawTrees(900,200,15,90,40);
-        drawTrees(600,300,20,100,50);
+        drawTrees(300,250);
+        drawTrees(750,100);
+        drawTrees(50,150);
+        drawTrees(900,200);
+        drawTrees(600,300);
+        // Draw Player
+        drawPlayer();
         // Draw Touch Inputs
         for (let touch of touches) {
             // Skip If Touch Undefined
@@ -127,21 +133,27 @@ canvas.addEventListener("touchcancel",(e)=>{
 
 
 // Draw Trees
-function drawTrees(x,y,w,h,r) {
-    // Draw Branch
-    ctx.fillStyle = "brown";
-    ctx.fillRect(
-        (x - camera.x)-(w/2),
-        y - camera.y,
-        w,h
-    );
-     // Draw A Tree
+function drawTrees(x,y) {
     ctx.beginPath();
     ctx.arc(
         x - camera.x,
         y - camera.y,
-        r,0,2* Math.PI
+        80,0,2* Math.PI
     );
     ctx.fillStyle = "green";
+    ctx.fill();
+}
+
+
+
+// Draw Player
+function drawPlayer() {
+    ctx.beginPath();
+    ctx.arc(
+        player.x - camera.x,
+        player.y - camera.y,
+        30,0,2* Math.PI
+    );
+    ctx.fillStyle = "lightblue";
     ctx.fill();
 }
