@@ -65,14 +65,6 @@ function game_loop() {
     if (isStarted) {
         // Clear Canvas
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        // Draw Text
-        ctx.font = "30px Arial";
-        ctx.fillStyle = "blue";
-        ctx.fillText("Game Started",410,250);
-        // Draw Rectangle
-        ctx.strokeStyle = "red";
-        ctx.lineWidth = 5;
-        ctx.strokeRect(400,210,200,60);
         // Draw Game World
         drawTrees(300,250);
         drawTrees(750,100);
@@ -80,17 +72,12 @@ function game_loop() {
         drawTrees(900,200);
         drawTrees(600,300);
         // Draw Player
+        updatePlayer();
         drawPlayer();
+        // Draw Ui
+        drawUI();
         // Draw Touch Inputs
-        for (let touch of touches) {
-            // Skip If Touch Undefined
-            if (!touch) continue;
-            // Draw Circle
-            ctx.beginPath();
-            ctx.arc(touch.x,touch.y,20,0,2* Math.PI);
-            ctx.fillStyle = "rgba(255,255,255,0.492)";
-            ctx.fill();
-        }
+        handleTouches();
         // Repeat Everything
         requestAnimationFrame(game_loop);
     }
@@ -132,6 +119,22 @@ canvas.addEventListener("touchcancel",(e)=>{
 
 
 
+// handle touch function
+function handleTouches() {
+    // draw touches
+    for (let touch of touches) {
+        // Skip If Touch Undefined
+        if (!touch) continue;
+        // Draw Circle
+        ctx.beginPath();
+        ctx.arc(touch.x,touch.y,20,0,2* Math.PI);
+        ctx.fillStyle = "rgba(255,255,255,0.492)";
+        ctx.fill();
+    }
+}
+
+
+
 // Draw Trees
 function drawTrees(x,y) {
     ctx.beginPath();
@@ -146,7 +149,20 @@ function drawTrees(x,y) {
 
 
 
-// Draw Player
+// update Player stats
+function updatePlayer() {
+    let dx,dy,angle = 0;
+    if(touches[0]) {
+        dx = touches[0].x - (player.x - camera.x);
+        dy = touches[0].y - (player.y - camera.y);
+        angle = Math.atan2(dy,dx);
+        player.x += 1*Math.cos(angle);
+        player.y += 1*Math.sin(angle);
+        camera.x += 1*Math.cos(angle);
+        camera.y += 1*Math.sin(angle);
+    }
+}
+// draw Player
 function drawPlayer() {
     ctx.beginPath();
     ctx.arc(
@@ -156,4 +172,18 @@ function drawPlayer() {
     );
     ctx.fillStyle = "lightblue";
     ctx.fill();
+}
+
+
+
+// draw Ui function
+function drawUI() {
+    // Draw Text
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "blue";
+    ctx.fillText("Game Started",410,250);
+    // Draw Rectangle
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 5;
+    ctx.strokeRect(400,210,200,60);
 }
