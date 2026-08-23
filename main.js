@@ -9,6 +9,8 @@ ctx.imageSmoothingEnabled = false;
 
 // Create Global Variables
 let isStarted = false;
+let lastTime = performance.now();
+let deltaTime = 0;
 let touches = [];
 let camera = {
     x: 0,
@@ -17,6 +19,7 @@ let camera = {
 let player = {
     x: 500,
     y: 250,
+    speed: 0.1,
 }
 
 
@@ -47,7 +50,8 @@ function start() {
     if (isStarted) return;
     init_canvas("start");
     isStarted = true;
-    game_loop();
+    lastTime = performance.now();
+    requestAnimationFrame(game_loop);
 }
 
 
@@ -61,10 +65,13 @@ function stop() {
 
 
 // Game Loop function
-function game_loop() {
+function game_loop(currentTime) {
     if (isStarted) {
         // Clear Canvas
         ctx.clearRect(0,0,canvas.width,canvas.height);
+        // Calculate Time
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
         // Draw Game World
         drawTrees(300,250);
         drawTrees(750,100);
@@ -156,10 +163,10 @@ function updatePlayer() {
         dx = touches[0].x - (player.x - camera.x);
         dy = touches[0].y - (player.y - camera.y);
         angle = Math.atan2(dy,dx);
-        player.x += 1*Math.cos(angle);
-        player.y += 1*Math.sin(angle);
-        camera.x += 1*Math.cos(angle);
-        camera.y += 1*Math.sin(angle);
+        player.x += player.speed*Math.cos(angle)*deltaTime;
+        player.y += player.speed*Math.sin(angle)*deltaTime;
+        camera.x += player.speed*Math.cos(angle)*deltaTime;
+        camera.y += player.speed*Math.sin(angle)*deltaTime;
     }
 }
 // draw Player
@@ -179,11 +186,7 @@ function drawPlayer() {
 // draw Ui function
 function drawUI() {
     // Draw Text
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "blue";
-    ctx.fillText("Game Started",410,250);
-    // Draw Rectangle
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 5;
-    ctx.strokeRect(400,210,200,60);
+    ctx.font = "15px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("DeltaTime = " + deltaTime,20,50);
 }
