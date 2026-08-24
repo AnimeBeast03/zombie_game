@@ -72,6 +72,10 @@ function game_loop(currentTime) {
         // Calculate Time
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
+        // Draw Player
+        updatePlayer();
+        // Update Camera
+        updateCamera();
         // Draw Game World
         drawTrees(300,250);
         drawTrees(750,100);
@@ -79,12 +83,11 @@ function game_loop(currentTime) {
         drawTrees(900,200);
         drawTrees(600,300);
         // Draw Player
-        updatePlayer();
         drawPlayer();
         // Draw Ui
         drawUI();
         // Draw Touch Inputs
-        handleTouches();
+        drawTouches();
         // Repeat Everything
         requestAnimationFrame(game_loop);
     }
@@ -127,7 +130,7 @@ canvas.addEventListener("touchcancel",(e)=>{
 
 
 // handle touch function
-function handleTouches() {
+function drawTouches() {
     // draw touches
     for (let touch of touches) {
         // Skip If Touch Undefined
@@ -165,8 +168,6 @@ function updatePlayer() {
         angle = Math.atan2(dy,dx);
         player.x += player.speed*Math.cos(angle)*deltaTime;
         player.y += player.speed*Math.sin(angle)*deltaTime;
-        camera.x += player.speed*Math.cos(angle)*deltaTime;
-        camera.y += player.speed*Math.sin(angle)*deltaTime;
     }
 }
 // draw Player
@@ -179,6 +180,14 @@ function drawPlayer() {
     );
     ctx.fillStyle = "lightblue";
     ctx.fill();
+}
+
+
+
+// Update camera
+function updateCamera() {
+    camera.x = player.x - (canvas.width/2);
+    camera.y = player.y - (canvas.height/2);
 }
 
 
