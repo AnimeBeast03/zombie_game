@@ -8,86 +8,218 @@ ctx.imageSmoothingEnabled = false;
 
 
 // Create Global Variables
-let isStarted = false;
-let lastTime = performance.now();
-let deltaTime = 0;
 let touches = [];
-let camera = {
+
+
+
+// Camera Related Stuff
+const camera = {
+    // camera position
     x: 0,
     y: 0,
-}
-let player = {
-    x: 500,
-    y: 250,
-    speed: 0.1,
-}
-
-
-
-// Canvas Initialization function
-function init_canvas(string) {
-    if (string === "start") {
-        // Enable Canvas Visibility
-        container.style.display = "block";
-        // Enable Fullscreen Orientation
-        container.requestFullscreen();
-        screen.orientation.lock("landscape");
-        // Resize Canvas
-        canvas.height = window.outerWidth;
-        canvas.width = window.outerHeight;
-    } else if (string === "stop") {
-        // Disable Fullscreen Orientation
-        document.exitFullscreen();
-        // Disable Canvas Visibility
-        container.style.display = "none";
+    // camera update function
+    update() {
+        this.x = player.x - (canvas.width/2);
+        this.y = player.y - (canvas.height/2);
     }
 }
 
 
 
-// Game Start function
-function start() {
-    if (isStarted) return;
-    init_canvas("start");
-    isStarted = true;
-    lastTime = performance.now();
-    requestAnimationFrame(game_loop);
+// Joystick Related Stuff
+const joystick = {
+    // joystick variables
+    x: 150,
+    y: 300,
+    scale: 100,
+    angle: 0,
+    distance: 0,
+    maxDistance: 75,
+    isOn: false,
+    touchId: null,
+    // knob variables
+    knobX: 0,
+    knobY: 0,
+    // update joystick function
+    update() {
+        // set the starting position of knob
+        this.knobX = this.x;
+        this.knobY = this.y;
+        // detect touch inputs
+        for(let [id,touch] of touches.entries()) {
+            // if touched on screen
+            if (touch) {
+                // calculate distance
+                let dx = touch.x - this.x;
+                let dy = touch.y - this.y;
+                let distance = Math.sqrt(dx*dx+dy*dy);
+                // if touched inside joystick radius
+                if (distance <= this.maxDistance) {
+                    // lock the targeted finger
+                    this.isOn = true;
+                    if (this.touchId === null) {
+                        this.touchId = id;
+                    }
+                    break;
+                // stop only if target touch is finished
+                } else {
+                    if (this.touchId !== null) {
+                        break;
+                    }
+                    this.isOn = false;
+                    this.touchId = null;
+                }
+            // if no touches on screen stop the joystick
+            } else {
+                this.isOn = false;
+                this.touchId = null;
+            }
+        } 
+        // update knob position;
+        if (this.isOn === true) {
+            let touch = touches[this.touchId];
+            if (touch) {
+                // calculate joystic states
+                let dx = touch.x - this.x;
+                let dy = touch.y - this.y;
+                this.distance = Math.sqrt(dx*dx+dy*dy);
+                this.angle = Math.atan2(dy,dx);
+                // update knob position
+                this.knobX = touch.x;
+                this.knobY = touch.y;
+            }
+        }
+    },
+    // draw joystick function
+    draw() {
+        // draw base
+        ctx.beginPath();
+        ctx.arc(
+            this.x,
+            this.y,
+            this.scale,
+            0,2* Math.PI
+        );
+        ctx.fillStyle = "rgba(255,255,255,0.189)";
+        ctx.fill();
+        // draw knob
+        ctx.beginPath();
+        ctx.arc(
+            this.knobX,
+            this.knobY,
+            this.scale/2,
+            0,2* Math.PI
+        );
+        ctx.fillStyle = "rgba(255,255,255,0.189)";
+        ctx.fill();
+    },
 }
 
 
 
-// Game Stop function
-function stop() {
-    init_canvas("stop");
-    isStarted = false;
+// Player Related Stuff
+const player = {
+    // player data
+    x: 500,
+    y: 250,
+    speed: 0.1,
+    // player update function
+    update() {
+        if(joystick.isOn) {
+            let angle = joystick.angle
+            this.x += this.speed*Math.cos(angle)*game.deltaTime;
+            this.y += this.speed*Math.sin(angle)*game.deltaTime;
+        }
+    },
+    // player draw function
+    draw() {
+        ctx.beginPath();
+        ctx.arc(
+            this.x - camera.x,
+            this.y - camera.y,
+            30,0,2* Math.PI
+        );
+        ctx.fillStyle = "lightblue";
+        ctx.fill();
+    },
+}
+
+
+
+// Game Stuff
+const game = {
+    // Game Variables
+    isStarted : false,
+    lastTime : performance.now(),
+    deltaTime : 0,
+    // Canvas Initiation Function
+    init_canvas(string) {
+        if (string === "start") {
+            // Enable Canvas Visibility
+            container.style.display = "block";
+            // Enable Fullscreen Orientation
+            container.requestFullscreen();
+            screen.orientation.lock("landscape");
+            // Resize Canvas
+            canvas.height = window.outerWidth;
+            canvas.width = window.outerHeight;
+        } else if (string === "stop") {
+            // Disable Fullscreen Orientation
+            document.exitFullscreen();
+            // Disable Canvas Visibility
+            container.style.display = "none";
+        }
+    },
+    // Game Start Function
+    start() {
+        if (this.isStarted) return;
+        this.init_canvas("start");
+        this.isStarted = true;
+        this.lastTime = performance.now();
+        requestAnimationFrame(game_loop);
+    },
+    // Game Stop Function
+    stop() {
+        this.init_canvas("stop");
+        this.isStarted = false;
+    },
+    // Calculate Time Function
+    update_time(time) {
+        this.deltaTime = time - this.lastTime;
+        this.lastTime = time;
+    }
 }
 
 
 
 // Game Loop function
-function game_loop(currentTime) {
-    if (isStarted) {
+function game_loop(time) {
+    if (game.isStarted) {
         // Clear Canvas
         ctx.clearRect(0,0,canvas.width,canvas.height);
+        
         // Calculate Time
-        deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
-        // Draw Player
-        updatePlayer();
-        // Update Camera
-        updateCamera();
-        // Draw Game World
+        game.update_time(time);
+        // Update Joystick
+        joystick.update();
+        // Update Entities
+        player.update();
+        camera.update();
+        
+        // Draw World
         drawTrees(300,250);
         drawTrees(750,100);
         drawTrees(50,150);
         drawTrees(900,200);
         drawTrees(600,300);
-        // Draw Player
-        drawPlayer();
+        // Draw Entities
+        player.draw();
         // Draw Ui
         drawUI();
+        joystick.draw();
         // Draw Touch Inputs
         drawTouches();
+        
         // Repeat Everything
         requestAnimationFrame(game_loop);
     }
@@ -159,43 +291,19 @@ function drawTrees(x,y) {
 
 
 
-// update Player stats
-function updatePlayer() {
-    let dx,dy,angle = 0;
-    if(touches[0]) {
-        dx = touches[0].x - (player.x - camera.x);
-        dy = touches[0].y - (player.y - camera.y);
-        angle = Math.atan2(dy,dx);
-        player.x += player.speed*Math.cos(angle)*deltaTime;
-        player.y += player.speed*Math.sin(angle)*deltaTime;
-    }
-}
-// draw Player
-function drawPlayer() {
-    ctx.beginPath();
-    ctx.arc(
-        player.x - camera.x,
-        player.y - camera.y,
-        30,0,2* Math.PI
-    );
-    ctx.fillStyle = "lightblue";
-    ctx.fill();
-}
-
-
-
-// Update camera
-function updateCamera() {
-    camera.x = player.x - (canvas.width/2);
-    camera.y = player.y - (canvas.height/2);
-}
-
-
-
 // draw Ui function
 function drawUI() {
-    // Draw Text
     ctx.font = "15px Arial";
     ctx.fillStyle = "white";
-    ctx.fillText("DeltaTime = " + deltaTime,20,50);
+    // Draw Text
+    ctx.fillText("DeltaTime = " + game.deltaTime,20,50);
+    // dtaw joystick states
+    let x = joystick.knobX - joystick.x;
+    let y = joystick.knobY - joystick.y;
+    ctx.fillText("KnobX = " + x,225,300);
+    ctx.fillText("knobY = " + y,225,315);
+    ctx.fillText("angle = " + joystick.angle,225,330);
+    ctx.fillText("distance = " + joystick.distance,225,345);
+    ctx.fillText("isOn = " + joystick.isOn,225,360);
+    ctx.fillText("touchId = " + joystick.touchId,225,375);
 }
