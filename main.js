@@ -3,7 +3,6 @@ const container = document.getElementById("canvas_container");
 // Setup Game Canvas
 const canvas = document.getElementById("game_canvas");
 const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = false;
 
 
 
@@ -34,7 +33,7 @@ const joystick = {
     scale: 100,
     angle: 0,
     distance: 0,
-    maxDistance: 75,
+    maxDistance: 100,
     isOn: false,
     touchId: null,
     // knob variables
@@ -84,9 +83,15 @@ const joystick = {
                 let dy = touch.y - this.y;
                 this.distance = Math.sqrt(dx*dx+dy*dy);
                 this.angle = Math.atan2(dy,dx);
-                // update knob position
-                this.knobX = touch.x;
-                this.knobY = touch.y;
+                // update knob position based on distance
+                if (this.distance > this.maxDistance) {
+                    this.distance = this.maxDistance;
+                    this.knobX = this.x + Math.cos(this.angle)*this.maxDistance;
+                    this.knobY = this.y + Math.sin(this.angle)*this.maxDistance;
+                } else {
+                    this.knobX = touch.x;
+                    this.knobY = touch.y;
+                }
             }
         }
     },
@@ -133,14 +138,24 @@ const player = {
     },
     // player draw function
     draw() {
+        let x = this.x - camera.x;
+        let y = this.y - camera.y;
+        let angle = joystick.angle;
+        // draw a bluue circle
         ctx.beginPath();
-        ctx.arc(
-            this.x - camera.x,
-            this.y - camera.y,
-            30,0,2* Math.PI
-        );
+        ctx.arc(x,y,30,0,2* Math.PI);
         ctx.fillStyle = "lightblue";
         ctx.fill();
+        // draw a reed line
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        ctx.lineTo(
+            x + Math.cos(angle)*30,
+            y + Math.sin(angle)*30,
+        );
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 5;
+        ctx.stroke();
     },
 }
 
@@ -161,8 +176,9 @@ const game = {
             container.requestFullscreen();
             screen.orientation.lock("landscape");
             // Resize Canvas
-            canvas.height = window.outerWidth;
-            canvas.width = window.outerHeight;
+            canvas.height = window.outerWidth; //1000
+            canvas.width = window.outerHeight; //450
+            ctx.imageSmoothingEnabled = false;
         } else if (string === "stop") {
             // Disable Fullscreen Orientation
             document.exitFullscreen();
