@@ -6,17 +6,19 @@
         <!-- External Style Sheet -->
         <link rel="stylesheet" href="style.css">
         <!-- External Java Script -->
-        <script src="main.js" defer></script>
+        <script type="module" src="./js/main.js" defer></script>
         <!-- Meta Data -->
         <meta name="viewport" content="width=device-width, viewport-fit=cover">
     </head>
     <body>
         <!-- Start Button -->
-        <button onClick="game.start()" id="start_btn">Play</button>
+        <button id="start_btn">Play</button>
         <!-- Canvas Container -->
         <div id="canvas_container">
             <!-- Stop Button -->
-            <button onClick="game.stop()" id="stop_btn">X</button>
+            <button id="stop_btn">X</button>
+            <!-- Dev Mode Switch -->
+            <button id="devMode_btn">DevMode<br>Off</button>
             <!-- Game Canvas -->
             <canvas id="game_canvas"></canvas>
         </div>

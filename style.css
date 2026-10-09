@@ -39,10 +39,19 @@ body {
     width: 40px;
     /* Position */
     position: absolute;
-    right: 0px;
+    right: 10px;
     /* Style */
     background-color: red;
     color: white;
+}
+#devMode_btn {
+    /* Size */
+    width: 100px;
+    /* Style */
+    background-color: red;
+    /* Position */
+    position: absolute;
+    right: 50px;
 }
 
 
