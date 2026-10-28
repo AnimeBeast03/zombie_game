@@ -1,19 +1,18 @@
-// get refference to http
+// get dependencies
 const http = require("http");
-// set port
+const websocket = require("ws");
+
+
+
+// get port
 const PORT = process.env.PORT || 3000;
 
 
 
-// Server Loop
-// create server with how to react on respective routs
+// create a server
 const server = http.createServer((req,res) => {
-
-    
     // set response type to json
     res.setHeader("content-type","application/json");
-
-    
     // handle homepage request
     if (req.url === "/") {
         // set http status to success
@@ -23,8 +22,6 @@ const server = http.createServer((req,res) => {
             message: "Zombie Game backend is running!"
         }));
     }
-
-        
     // handle api request
     else if (req.url === "/api/status") {
         // set http status to success
@@ -35,8 +32,6 @@ const server = http.createServer((req,res) => {
             game: "zombie_game"
         }));
     }
-
-        
     // handle unknown requests
     else {
         // set http status to failed
@@ -46,13 +41,43 @@ const server = http.createServer((req,res) => {
             error: "Route not found"
         }));
     }
-    
 });
 
 
 
-// Server Listener
+// attach a websocket to existing http server
+const wss = new websocket.Server({server});
+
+
+
+// detect when a player connects the server
+wss.on("connection",(ws)=>{
+    // print msg when player connects
+    console.log("A player connected!");
+    // send a msg to player
+    ws.send(JSON.stringify({
+        type: "welcome",
+        message: "Connected to zombie game multiplayer"
+    }));
+    // receive any data from player
+    ws.on("message",(data)=>{
+        console.log("Received from player: " + data.toString());
+    });
+    // print a msg when player leaves
+    ws.on("close",()=>{
+        console.log("Player disconnected");
+    });
+    // detect errors in the connection with player
+    ws.on("error",(error)=>{
+        console.log("Websocket error : " + error.message);
+    });
+});
+
+
+
+// Listen to any server start request
 server.listen(PORT,"0.0.0.0",()=>{
-    // print this msg on every request
+    // print this msg when server is ready
     console.log("Server is running on port " + PORT);
+    console.log("Websocket connection is ready");
 });
