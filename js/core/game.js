@@ -5,6 +5,7 @@ import {camera} from "./../utils/camera.js";
 import {joystick} from "./../input/joystick.js";
 import {touch} from "./../input/touch.js";
 import {trees} from "./../world/trees.js";
+import {websocket} from "./../network/websocket.js";
 
 
 
@@ -23,6 +24,7 @@ export const game = {
     start() {
         if (this.isStarted) return;
         canvas.initialize("start");
+        websocket.connect();
         this.isStarted = true;
         this.lastTime = performance.now();
         requestAnimationFrame((time) => this.loop(time));
@@ -32,6 +34,7 @@ export const game = {
     // Game Stop Function
     stop() {
         canvas.initialize("stop");
+        websocket.disconnect();
         this.isStarted = false;
     },
 

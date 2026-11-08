@@ -2,8 +2,7 @@
 A DayZ inspired 2d game in development for mobile.
 
 # current file structure
-
-'''
+```
 zombie_game/
     │
     ├── .git/
@@ -36,4 +35,4 @@ zombie_game/
     ├── README.md
     ├── style.css
     └── zombie_game.zip
-'''
+```

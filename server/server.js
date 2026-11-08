@@ -56,8 +56,8 @@ wss.on("connection",(ws)=>{
     console.log("A player connected!");
     // send a msg to player
     ws.send(JSON.stringify({
-        type: "welcome",
-        message: "Connected to zombie game multiplayer"
+        type: "welcome in the game",
+        message: "Connected to websocket multiplayer"
     }));
     // receive any data from player
     ws.on("message",(data)=>{
